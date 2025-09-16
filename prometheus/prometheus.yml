@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'ml_app'
+    static_configs:
+      - targets: ['ml_app:8000']
