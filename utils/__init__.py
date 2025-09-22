@@ -21,6 +21,23 @@ def load_yaml(file_path: str) -> Dict[str, Any]:
         raise FileNotFoundError(f"The file at {file_path} was not found.")
     except yaml.YAMLError as e:
         raise yaml.YAMLError(f"Error parsing YAML file at {file_path}: {e}")
+
+def load_parquet(file_path: str) -> pd.DataFrame:
+    """
+    Load a Parquet file and return its contents as a pandas DataFrame.
+
+    :param file_path: Path to the Parquet file
+    :return: pandas DataFrame containing the Parquet file contents
+    :raises FileNotFoundError: If the file does not exist
+    :raises ValueError: If the file cannot be read as a Parquet file
+    """
+    try:
+        df = pd.read_parquet(file_path)
+        return df
+    except FileNotFoundError:
+        raise FileNotFoundError(f"The file at {file_path} was not found.")
+    except Exception as e:
+        raise ValueError(f"Error reading Parquet file at {file_path}: {e}")
     
     
 def load_json(file_info: Dict[str, str]) -> pd.DataFrame:

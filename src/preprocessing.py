@@ -10,11 +10,11 @@ def ingest_data(file_config) -> None:
     :return: pandas DataFrame containing the ingested data
     """
     df = load_json(file_config)
-    name = f"{file_config['path'].split('/')[-1].replace('.json', '.parquet')}"
+    name = f"{file_config['path'].split('/')[-1].replace('.json', '')}"
     save_to_parquet(df, name)
     return 
 
-def run_ingestion_pipeline(datasource_config) -> None:
+def preprocessing(datasource_config) -> None:
     """
     Run the ingestion pipeline to convert JSON data to Parquet format for predefined datasources.
 

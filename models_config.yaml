@@ -1,0 +1,13 @@
+# ...existing code...
+embedding_model:
+  # Sentence-Transformers model identifier (HuggingFace name) or local folder
+  name: "all-MiniLM-L6-v2"
+
+  # runtime options
+  device: "cpu"                # "cpu" or "cuda"
+  batch_size: 32
+  normalize_embeddings: true
+
+# Optional: path to a locally downloaded model (uncomment to use)
+# local_model_path: "/Users/you/models/all-MiniLM-L6-v2"
+# ...existing code...
