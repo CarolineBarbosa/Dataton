@@ -85,9 +85,10 @@ class FAISSIndexer:
         self._save()
         return ids if len(ids) > 1 else ids[0]
 
-    def query_embedding(self, embedding: np.ndarray, k: Optional[int] = None) -> List[Dict]:
+    def query_embedding(self, embedding: np.ndarray, k: Optional[int] = None, filters: Optional[Dict] = None) -> List[Dict]:
         """
         Returns list of dicts: [{id, score, metadata}, ...]
+        Filters can be applied to metadata: e.g., {"column_name": "value"}.
         """
         if k is None:
             k = self.k_default
@@ -101,9 +102,13 @@ class FAISSIndexer:
         for score, idx in zip(D[0].tolist(), I[0].tolist()):
             if idx < 0:
                 continue
-            # Map FAISS position to assigned id: for IndexFlat indices are in insertion order 0..n-1
-            # Our metadata keys are assigned ids starting from 0 in same insertion order.
-            # If you ever delete / use ID map, switch to IndexIDMap.
             metadata = self.metadata.get(idx, {})
+            
+            # Apply filters if provided
+            if filters:
+                match = all(metadata.get(key) == value for key, value in filters.items())
+                if not match:
+                    continue
+
             results.append({"id": int(idx), "score": float(score), "metadata": metadata})
         return results

@@ -1,0 +1,8 @@
+index:
+  index_type: "flat"        # "flat" (IndexFlatIP) is simplest and free
+  metric: "ip"              # inner product; use normalized embeddings for cosine-like behaviour
+  k: 5
+
+paths:
+  index_path: "src/data/faiss.index"
+  meta_path: "src/data/faiss_meta.pkl"
