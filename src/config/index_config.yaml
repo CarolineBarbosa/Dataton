@@ -4,5 +4,5 @@ index:
   k: 5
 
 paths:
-  index_path: "src/data/faiss.index"
-  meta_path: "src/data/faiss_meta.pkl"
+  index_path: "data/faiss/faiss.index"
+  meta_path: "data/faiss/faiss_meta.pkl"
