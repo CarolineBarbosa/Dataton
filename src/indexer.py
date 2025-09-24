@@ -28,7 +28,7 @@ class FAISSIndexer:
     def _init_index(self, dim: int):
         # Use IndexFlatIP so you can use normalized embeddings for cosine-like similarity
         if self.index_type == "flat":
-            self.index = faiss.IndexFlatIP(dim)
+            self.index = faiss.IndexIDMap2(faiss.IndexFlatIP(dim))
         else:
             # fallback to flat
             self.index = faiss.IndexFlatIP(dim)
@@ -96,19 +96,141 @@ class FAISSIndexer:
             return []
 
         emb = embedding.astype(np.float32).reshape(1, -1)
-        D, I = self.index.search(emb, k)  # D: scores, I: indices (position-based)
+        # Filter embeddings to only include those with metadata "source" equal to "applicants"
+        valid_ids = [idx for idx, meta in self.metadata.items() if meta.get("source") == "applicants"]
+        if not valid_ids:
+            return []
+
+        # Create a mask for valid indices
+        valid_indices = np.array(valid_ids, dtype=np.int64)
+        self.index.remove_ids(np.setdiff1d(np.array(list(self.metadata.keys()), dtype=np.int64), valid_indices))
+
+        D, I = self.index.search(emb, 100)  # D: scores, I: indices (position-based)
+        print(f"Filters: {filters}")
 
         results = []
         for score, idx in zip(D[0].tolist(), I[0].tolist()):
+         
             if idx < 0:
                 continue
             metadata = self.metadata.get(idx, {})
-            
+            # Simplify metadata columns
+            metadata = transform_metadata(metadata)
+
             # Apply filters if provided
             if filters:
                 match = all(metadata.get(key) == value for key, value in filters.items())
                 if not match:
                     continue
+                results.append({"id": int(idx), "score": float(score), "metadata": metadata})
 
-            results.append({"id": int(idx), "score": float(score), "metadata": metadata})
-        return results
+        if not results and len(results) == 0:  # If no results after filtering
+            for score, idx in zip(D[0].tolist(), I[0].tolist()):
+
+                D, I = self.index.search(emb, k)  # Re-run search without filters
+                for score, idx in zip(D[0].tolist(), I[0].tolist()):
+                    if idx < 0:
+                        continue
+                    metadata = self.metadata.get(idx, {})
+                    results.append({"id": int(idx), "score": float(score), "metadata": metadata})
+                
+        return results[:k]
+
+def transform_metadata(metadata):
+    if "nivel_ingles" in metadata:
+        metadata["nivel_ingles"] = 1 if len(metadata["nivel_ingles"]) > 0 else 0
+    if "nivel_espanhol" in metadata:
+        metadata["nivel_espanhol"] = 1 if len(metadata["nivel_espanhol"]) > 0 else 0
+        # Create dummy columns for 'nivel profissional'
+    if "nivel_profissional" in metadata:
+        dummy_profissional = {"Junior": 0, "Pleno": 0, "Senior": 0}
+        if metadata["nivel_profissional"] in dummy_profissional:
+            dummy_profissional[metadata["nivel_profissional"]] = 1
+        metadata.update(dummy_profissional)
+
+        # Create dummy columns for 'nivel academico'
+    if "nivel_academico" in metadata:
+        dummy_academico = {
+                "Ensino Médio": 0,
+                "Graduação": 0,
+                "Pós-Graduação": 0,
+                "Mestrado": 0,
+                "Doutorado": 0,
+            }
+        if metadata["nivel_academico"] in dummy_academico:
+            dummy_academico[metadata["nivel_academico"]] = 1
+        metadata.update(dummy_academico)
+
+        # Create dummy columns for 'cidade'
+    if "cidade" in metadata:
+        dummy_cidade = {
+                "São Paulo": 0,
+                "Rio de Janeiro": 0,
+                "Belo Horizonte": 0,
+                "Curitiba": 0,
+                "Porto Alegre": 0,
+                "Salvador": 0,
+                "Brasília": 0,
+                "Fortaleza": 0,
+                "Recife": 0,
+                "Manaus": 0,
+            }
+        if metadata["cidade"] in dummy_cidade:
+            dummy_cidade[metadata["cidade"]] = 1
+        metadata.update(dummy_cidade)
+    return metadata
+
+
+def transform_metadata(metadata):
+    if "nivel_ingles" in metadata:
+        metadata["nivel_ingles"] = 1 if len(metadata["nivel_ingles"]) > 0 else 0
+    if "nivel_espanhol" in metadata:
+        metadata["nivel_espanhol"] = 1 if len(metadata["nivel_espanhol"]) > 0 else 0
+        # Create dummy columns for 'nivel profissional'
+    if "nivel_profissional" in metadata:
+        dummy_profissional = {"Junior": 0, "Pleno": 0, "Senior": 0}
+        if metadata["nivel_profissional"] in dummy_profissional:
+            dummy_profissional[metadata["nivel_profissional"]] = 1
+        metadata.update(dummy_profissional)
+
+        # Create dummy columns for 'nivel academico'
+    if "nivel_academico" in metadata:
+        dummy_academico = {
+                "Ensino Médio": 0,
+                "Graduação": 0,
+                "Pós-Graduação": 0,
+                "Mestrado": 0,
+                "Doutorado": 0,
+            }
+        if metadata["nivel_academico"] in dummy_academico:
+            dummy_academico[metadata["nivel_academico"]] = 1
+        metadata.update(dummy_academico)
+
+        # Create dummy columns for 'cidade'
+    if "cidade" in metadata:
+        dummy_cidade = {
+                "São Paulo": 0,
+                "Rio de Janeiro": 0,
+                "Belo Horizonte": 0,
+                "Curitiba": 0,
+                "Porto Alegre": 0,
+                "Salvador": 0,
+                "Brasília": 0,
+                "Fortaleza": 0,
+                "Recife": 0,
+                "Manaus": 0,
+            }
+        if metadata["cidade"] in dummy_cidade:
+            dummy_cidade[metadata["cidade"]] = 1
+        metadata.update(dummy_cidade)
+    return metadata
+
+def add_entity_embeddings_to_faiss(df, emb_mgr, indexer):
+    for i, row in df.iterrows():
+        text = row['text']
+        vec = emb_mgr.generate_embedding(text)
+        metadata = row.to_dict()  # Convert all columns of the row to a dictionary
+        metadata.update({"source": "applicants", "idx": i})  # Add additional metadata
+        assigned_id = indexer.add_embedding(vec, metadata=metadata)
+
+
