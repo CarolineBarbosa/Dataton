@@ -1,0 +1,15 @@
+datasources:
+    applicants:
+      type: json
+      id: applicants_id
+      path: data/raw/applicants.json
+    jobs:
+      type: json
+      id: jobs_id
+      path: data/raw/vagas.json
+    prospects:
+      type: json
+      id: prospects_id
+      path: data/raw/prospects.json
+
+
