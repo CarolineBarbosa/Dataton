@@ -35,16 +35,3 @@ class EmbeddingModel:
         return self.model.encode(texts, normalize_embeddings=normalize_embeddings)
 
 
-# def generate_embeddings(df, text_column, model_config_path='models_config.yaml'):
-#     """Generate embeddings for the text column using a pre-trained model."""
-#     embedding_model = EmbeddingModel(config_path=model_config_path)
-#     df['embeddings'] = list(embedding_model.encode(
-#         df[text_column].tolist(), 
-#         normalize_embeddings=True
-#     ))
-#     embeddings = embedding_model.encode(
-#         df[text_column].tolist(), 
-#         normalize_embeddings=True
-#     )
-#     df['embeddings'] = embeddings
-#     return df
