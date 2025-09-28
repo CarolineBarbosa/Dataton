@@ -2,6 +2,7 @@ from typing import List, Union
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import yaml
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class EmbeddingManager:
@@ -35,3 +36,12 @@ class EmbeddingModel:
         return self.model.encode(texts, normalize_embeddings=normalize_embeddings)
 
 
+def calculate_similarity(text1: str, text2: str) -> float:
+    """
+    Calculate the cosine similarity between two texts.
+    """
+    manager = EmbeddingManager()
+    embedding1 = manager.generate_embedding(text1)
+    embedding2 = manager.generate_embedding(text2)
+    similarity = cosine_similarity([embedding1], [embedding2])[0][0]
+    return similarity

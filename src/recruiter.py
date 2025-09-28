@@ -19,6 +19,8 @@ def retrieve_top_applicants(emb_mgr: EmbeddingManager,
     results = indexer.query_embedding(qvec, filters=filters, k=k_top_applicants)
     return results
 
+
+
 def find_top_applicants_with_filters(
     job_description: str,
     faiss_indexer: FAISSIndexer,
@@ -74,6 +76,65 @@ def find_top_applicants_with_filters(
     # sort by score desc and take top_n
     candidates = sorted(candidates, key=lambda x: x["score"], reverse=True)[:top_n]
     return candidates
+
+
+def find_top_applicants_with_filters(
+    job_description: str,
+    faiss_indexer: FAISSIndexer,
+    emb_mgr: EmbeddingManager,
+    filters: Optional[Dict[str, bool]] = None,
+    top_n: int = 5,
+    search_k: int = 100
+) -> List[Dict[str, Any]]:
+    """
+    Retrieve candidate ids from FAISS by querying with the job_description embedding,
+    then apply column-level include/exclude filters against applicants_df and return
+    the top_n matches.
+
+    - search_k: number of neighbors to fetch from FAISS (fetch more and then filter down).
+    - filters: dict with keys like "col:val" and boolean flag True=include, False=exclude.
+    """
+    applicants_df = pd.read_parquet("data/processed/applicants.parquet")
+
+    if applicants_df is None or len(applicants_df) == 0:
+        return []
+    raw_results = retrieve_top_applicants(
+        emb_mgr=emb_mgr,
+        indexer=faiss_indexer,
+        query_text=job_description,
+        k_top_applicants=top_n)
+
+    # apply filtering and collect candidates
+    candidates = []
+    for r in raw_results:
+        meta = r.get("metadata", {})
+
+        # meta should include 'idx' pointing to row in applicants_df
+        idx = meta.get("idx")
+        if idx is None:
+            continue
+        try:
+            row = applicants_df.loc[idx]
+        except Exception:
+            # fallback to iloc if loc fails (e.g., index is simple range)
+            try:
+                row = applicants_df.iloc[idx]
+            except Exception:
+                continue
+
+        candidates.append({
+            "applicant_idx": int(idx),
+            "applicant_id": row.get("applicants_id", None),
+            "nome": row.get("nome", None) if "nome" in row.index else None,
+            "score": float(r.get("score", 0.0)),
+            "metadata": meta
+        })
+    candidates = list({c["applicant_id"]: c for c in candidates if c["applicant_id"] is not None}.values())
+
+    # sort by score desc and take top_n
+    candidates = sorted(candidates, key=lambda x: x["score"], reverse=True)[:top_n]
+    return candidates
+
 
 
 class RecruiterBot:
