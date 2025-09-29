@@ -25,6 +25,20 @@ class EmbeddingManager:
         
 
 class EmbeddingModel:
+    """
+    A class to manage embedding models for encoding text data.
+
+    Attributes:
+        model_name (str): The name of the embedding model loaded from the configuration file.
+        model (SentenceTransformer): The SentenceTransformer model instance used for encoding.
+
+    Methods:
+        __init__(config_path):
+            Initializes the EmbeddingModel instance by loading the configuration and model.
+        
+        encode(texts, normalize_embeddings=True):
+            Encodes a list of texts into embeddings using the loaded model.
+    """
     def __init__(self, config_path):
 
         with open(config_path, 'r') as file:
