@@ -81,9 +81,17 @@ class FAISSIndexer:
             self.next_id += 1
 
         # FAISS IndexFlat does not support supplying explicit ids; appends in order.
-        self.index.add(emb)
+        id_arr = np.array(ids, dtype=np.int64)
+        # if the FAISS index supports add_with_ids (e.g., IndexIDMap/IndexIDMap2)
+        if hasattr(self.index, "add_with_ids"):
+            self.index.add_with_ids(emb, id_arr)
+        else:
+            # fallback for plain IndexFlat*
+            self.index.add(emb)
         self._save()
         return ids if len(ids) > 1 else ids[0]
+
+    
 
     def query_embedding(self, embedding: np.ndarray, k: Optional[int] = None, filters: Optional[Dict] = None) -> List[Dict]:
         """
@@ -116,12 +124,12 @@ class FAISSIndexer:
             # Simplify metadata columns
             metadata = transform_metadata(metadata)
 
-            # # Apply filters if provided
-            # if filters:
-            #     match = all(metadata.get(key) == value for key, value in filters.items())
-            #     if not match:
-            #         continue
-            #     results.append({"id": int(idx), "score": float(score), "metadata": metadata})
+            # Apply filters if provided
+            if filters:
+                match = all(metadata.get(key) == value for key, value in filters.items())
+                if not match:
+                    continue
+                results.append({"id": int(idx), "score": float(score), "metadata": metadata})
 
         if not results and len(results) == 0:  # If no results after filtering
             for score, idx in zip(D[0].tolist(), I[0].tolist()):

@@ -17,61 +17,11 @@ from src.indexer import FAISSIndexer
 
 from src.recruiter import RecruiterBot
 
+from src.faiss_artifact_creator import orchestrate_faiss_creation
 
 
-
-# if __name__ == "__main__":
-    # Call the pipeline function
-    # config = DatasourceConfig("data_source_config.yaml").config
-    # preprocessing(config)
-
-
-    # Define the columns and file paths for vagas and applicants
-    # vagas_file_path = "data/processed/vagas.parquet"
-    # applicants_file_path = "data/processed/applicants.parquet"
-
-    # vagas_columns_to_combine = [
-    #     'titulo_vaga', 'nivel profissional', 'nivel_academico',
-    #     'nivel_ingles', 'nivel_espanhol', 'areas_atuacao',
-    #     'principais_atividades', 'competencia_tecnicas_e_comportamentais',
-    #     'habilidades_comportamentais_necessarias'
-    # ]
-
-    # applicants_columns_to_combine = [
-    #     'titulo_profissional', 'objetivo_profissional', 'area_atuacao',
-    #     'conhecimentos_tecnicos', 'certificacoes', 'nivel_profissional',
-    #     'nivel_academico', 'cursos', 'cv_pt',
-    #     'nivel_ingles', 'nivel_espanhol'
-    # ]
-
-    # vagas_columns_to_keep = ['jobs_id', 'titulo_vaga', 'nivel profissional', 'nivel_academico', 'nivel_ingles', 'nivel_espanhol','cidade','text']
-    # applicants_columns_to_keep = ['applicants_id', 'titulo_profissional', 'nivel_profissional', 'nivel_academico', 'nivel_ingles', 'nivel_espanhol','local','text']
-    
-    # # # Process vagas
-    # print("Preparing vagas and applicants data...")
-    # df_vagas, df_applicants = prepare_vagas_applicants_data(vagas_file_path, applicants_file_path, vagas_columns_to_combine, applicants_columns_to_combine, vagas_columns_to_keep, applicants_columns_to_keep)
-    # print("Finished preparing vagas and applicants data.")
-    # index_config_path = os.path.join( "src", "config", "index_config.yaml")
-    # models_config_path = os.path.join( "models_config.yaml")
-
-    # # Load index config
-    # with open(index_config_path, "r") as f:
-    #     index_config = yaml.safe_load(f)
-
-    # # Init components
-    # emb_mgr = EmbeddingManager(config_path=models_config_path)
-    # indexer = FAISSIndexer(index_config)
-
-    # print("Starting to add embeddings to FAISS index...")
-    # # Add embeddings for vagas to FAISS index
-    # add_entity_embeddings_to_faiss(df_vagas, emb_mgr, indexer)
-    # print("Finished adding vagas embeddings to FAISS index.")
-    # # Add embeddings for applicants to FAISS index
-    # print("Starting to add applicants embeddings to FAISS index...")
-    # add_entity_embeddings_to_faiss(df_applicants, emb_mgr, indexer)
-    # print("Finished adding applicants embeddings to FAISS index.")
-
-
+if __name__ == "__main__":
+    orchestrate_faiss_creation()
 
 
 # Minimal example (uncomment to run as script)
@@ -89,8 +39,8 @@ from src.recruiter import RecruiterBot
 #     # print(bot.chat("Cientista de dados com inglês avançado em São Paulo"))
 #     print(bot.chat("SAP ABAP Pleno"))
 
-    # TODO: criar um notebook com exemplos de uso do job-matchin e avaliar com base nos prospects reais
-from src.evaluate import *
-if __name__ == "__main__":
-    main()
+#     # TODO: criar um notebook com exemplos de uso do job-matchin e avaliar com base nos prospects reais
+# from src.evaluate import *
+# if __name__ == "__main__":
+#     main()
  

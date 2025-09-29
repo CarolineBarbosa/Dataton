@@ -26,6 +26,7 @@ add_workspace_to_path()
 from src.embedding_manager import EmbeddingManager
 from src.indexer import FAISSIndexer
 from src.recruiter import RecruiterBot, find_top_applicants_with_filters
+import requests
 
 # Config paths
 INDEX_CFG_PATH = os.path.join("src", "config", "index_config.yaml")
@@ -127,6 +128,22 @@ def display_candidate(candidate, applicant_info, pdf_path):
         )
         st.markdown("---")
 
+def fetch_candidates(chat_input, api_url="http://localhost:8000/predict", top_n=10, search_k=200):
+    payload = {
+        "job_description": chat_input,
+        "top_n": top_n,
+        "search_k": search_k
+    }
+    response = requests.post(api_url, json=payload)
+    if response.status_code == 200:
+        candidates = response.json()
+        # Remove duplicates based on 'applicant_idx'
+        unique_candidates = {c['applicant_idx']: c for c in candidates}.values()
+        return list(unique_candidates)
+    else:
+        st.error(f"Error: {response.status_code} - {response.text}")
+        return []
+
 # Process chat input and find candidates
 def process_chat_input(chat_input):
     if not chat_input.strip():
@@ -135,14 +152,7 @@ def process_chat_input(chat_input):
 
     with st.spinner("Processing..."):
         reply = bot.chat(chat_input)
-        results = find_top_applicants_with_filters(
-            job_description=bot.job_description,
-            faiss_indexer=indexer,
-            emb_mgr=emb_mgr,
-            filters=bot.filters if bot.filters else None,
-            top_n=10,
-            search_k=200
-        )
+        results = fetch_candidates(chat_input)
 
     if results:
         st.markdown("**Top matches:**")
