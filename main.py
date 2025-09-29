@@ -22,25 +22,3 @@ from src.faiss_artifact_creator import orchestrate_faiss_creation
 
 if __name__ == "__main__":
     orchestrate_faiss_creation()
-
-
-# Minimal example (uncomment to run as script)
-# if __name__ == "__main__":
-#     import os, sys, yaml
-#     workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-#     sys.path.insert(0, workspace_root)
-#     with open(os.path.join( "src", "config", "index_config.yaml")) as f:
-#         index_cfg = yaml.safe_load(f)
-#     emb_mgr = EmbeddingManager(config_path=os.path.join( "models_config.yaml"))
-#     indexer = FAISSIndexer(index_cfg)
-#     # load your applicants_df here (parquet/csv)
-#     bot = RecruiterBot( emb_mgr, indexer)
-#     # print(bot.chat("Senior Engenheiro de software"))
-#     # print(bot.chat("Cientista de dados com inglês avançado em São Paulo"))
-#     print(bot.chat("SAP ABAP Pleno"))
-
-#     # TODO: criar um notebook com exemplos de uso do job-matchin e avaliar com base nos prospects reais
-# from src.evaluate import *
-# if __name__ == "__main__":
-#     main()
- 
