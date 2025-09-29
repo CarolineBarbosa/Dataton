@@ -4,8 +4,9 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-# workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-# sys.path.insert(0, workspace_root)
+import yaml
+workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, workspace_root)
 from src.feature_engineering import extract_filters_from_text
 from src.embedding_manager import EmbeddingManager
 from src.indexer import FAISSIndexer
@@ -78,65 +79,6 @@ def find_top_applicants_with_filters(
     return candidates
 
 
-def find_top_applicants_with_filters(
-    job_description: str,
-    faiss_indexer: FAISSIndexer,
-    emb_mgr: EmbeddingManager,
-    filters: Optional[Dict[str, bool]] = None,
-    top_n: int = 5,
-    search_k: int = 100
-) -> List[Dict[str, Any]]:
-    """
-    Retrieve candidate ids from FAISS by querying with the job_description embedding,
-    then apply column-level include/exclude filters against applicants_df and return
-    the top_n matches.
-
-    - search_k: number of neighbors to fetch from FAISS (fetch more and then filter down).
-    - filters: dict with keys like "col:val" and boolean flag True=include, False=exclude.
-    """
-    applicants_df = pd.read_parquet("data/processed/applicants.parquet")
-
-    if applicants_df is None or len(applicants_df) == 0:
-        return []
-    raw_results = retrieve_top_applicants(
-        emb_mgr=emb_mgr,
-        indexer=faiss_indexer,
-        query_text=job_description,
-        k_top_applicants=top_n)
-
-    # apply filtering and collect candidates
-    candidates = []
-    for r in raw_results:
-        meta = r.get("metadata", {})
-
-        # meta should include 'idx' pointing to row in applicants_df
-        idx = meta.get("idx")
-        if idx is None:
-            continue
-        try:
-            row = applicants_df.loc[idx]
-        except Exception:
-            # fallback to iloc if loc fails (e.g., index is simple range)
-            try:
-                row = applicants_df.iloc[idx]
-            except Exception:
-                continue
-
-        candidates.append({
-            "applicant_idx": int(idx),
-            "applicant_id": row.get("applicants_id", None),
-            "nome": row.get("nome", None) if "nome" in row.index else None,
-            "score": float(r.get("score", 0.0)),
-            "metadata": meta
-        })
-    candidates = list({c["applicant_id"]: c for c in candidates if c["applicant_id"] is not None}.values())
-
-    # sort by score desc and take top_n
-    candidates = sorted(candidates, key=lambda x: x["score"], reverse=True)[:top_n]
-    return candidates
-
-
-
 class RecruiterBot:
     """
     Lightweight recruiter bot that keeps a running job_description and filters,
@@ -181,9 +123,7 @@ class RecruiterBot:
 
 # Minimal example (uncomment to run as script)
 if __name__ == "__main__":
-    import os, sys, yaml
-    workspace_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    sys.path.insert(0, workspace_root)
+
     with open(os.path.join(workspace_root, "src", "config", "index_config.yaml")) as f:
         index_cfg = yaml.safe_load(f)
     emb_mgr = EmbeddingManager(config_path=os.path.join(workspace_root, "models_config.yaml"))

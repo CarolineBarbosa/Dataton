@@ -11,13 +11,7 @@ This project implements a job matching algorithm that connects job seekers with 
 ## Setup Instructions
 
 
-3. Install Ollama:
-   Ollama is required for running certain parts of the project. You can install it by following the instructions on the [Ollama website](https://ollama.com). For macOS, you can use Homebrew:
-   ```
-   pip install ollama
-   ```
 
-   Ensure that Ollama is properly set up and accessible from your terminal.
 
 ## Usage
 

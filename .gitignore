@@ -6,10 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# faiss
+data/faiss/*
 
 # file extensions
 *.parquet
 *.json
+*.pdf
 
 # Distribution / packaging
 .Python
