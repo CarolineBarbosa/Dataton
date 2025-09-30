@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import streamlit_ext as ste
 from fpdf import FPDF
+API_URL = os.environ.get("RECRUITER_API_URL", "http://ml_app:8000/predict")
 
 # Ensure the 'ollama' package is installed
 # def ensure_package_installed(package_name):
@@ -128,7 +129,9 @@ def display_candidate(candidate, applicant_info, pdf_path):
         )
         st.markdown("---")
 
-def fetch_candidates(chat_input, api_url="http://localhost:8000/predict", top_n=10, search_k=200):
+def fetch_candidates(chat_input, api_url:str=None, top_n=10, search_k=200):
+    api_url = api_url or API_URL
+
     payload = {
         "job_description": chat_input,
         "top_n": top_n,

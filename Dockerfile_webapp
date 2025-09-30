@@ -1,0 +1,21 @@
+# Imagem base
+FROM python:3.10
+
+# Diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de código
+COPY ./app ./app/
+COPY ./src ./src/
+COPY ./data ./data/
+COPY ./streamlit_app.py ./app/streamlit_app.py 
+COPY requirements.txt ./
+
+
+# Instalar dependências
+RUN pip install --no-cache-dir -U -r requirements.txt
+
+# Expor porta do FastAPI
+EXPOSE 8501
+
+CMD ["streamlit", "run", "app/streamlit_app.py", "--server.port=8501"]

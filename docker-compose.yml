@@ -1,9 +1,13 @@
+version: "3.8"
 services:
   ml_app:
     build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     container_name: ml_app
     ports:
       - "8000:8000"
+    networks:
+      - app
 
   prometheus:
     image: prom/prometheus:latest
@@ -24,3 +28,21 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: Dockerfile_webapp
+    container_name: streamlit_app
+    environment:
+      RECRUITER_API_URL: "http://ml_app:8000/predict"
+    ports:
+      - "8501:8501"
+    depends_on:
+      - ml_app
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge

@@ -73,13 +73,9 @@ curl http://localhost:8000/metrics
 - Adicione **Data Source**: Prometheus (URL: `http://prometheus:9090`)  
 - Crie **Dashboard → Panel → Query**: `requests_total`  
 
-## Acessando o App via Streamlit
+### Testando o Web App
 
-Rodar o Streamlit localmente (sem Docker)  
-```bash
-streamlit run app/streamlit.py
-```
-
+Explore a interface do aplicativo para visualizar as funcionalidades e os resultados do algoritmo de matching.
 Acesse o Streamlit no navegador:  
 [http://localhost:8501](http://localhost:8501)
 
