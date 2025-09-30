@@ -72,3 +72,15 @@ curl http://localhost:8000/metrics
 - Workspace: **Datathon**  
 - Adicione **Data Source**: Prometheus (URL: `http://prometheus:9090`)  
 - Crie **Dashboard → Panel → Query**: `requests_total`  
+
+## Acessando o App via Streamlit
+
+Rodar o Streamlit localmente (sem Docker)  
+```bash
+streamlit run app/streamlit.py
+```
+
+Acesse o Streamlit no navegador:  
+[http://localhost:8501](http://localhost:8501)
+
+ Explore a interface do app para visualizar as funcionalidades e resultados do algoritmo de matching.

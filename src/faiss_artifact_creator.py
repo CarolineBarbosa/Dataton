@@ -1,4 +1,4 @@
-from utils import * 
+from src.utils import * 
 # from utils.datasource_config import DatasourceConfig
 # from src.preprocessing import preprocessing
 from src.feature_engineering import process_entity, extract_filters_from_text, prepare_vagas_applicants_data
@@ -62,7 +62,7 @@ def orchestrate_faiss_creation() -> None:
         'nivel_academico', 'nivel_ingles', 'nivel_espanhol', 'local', 'text'
     ]
     index_config_path = os.path.join("src", "config", "index_config.yaml")
-    models_config_path = os.path.join("models_config.yaml")
+    models_config_path = os.path.join("src/models_config.yaml")
 
     # Process applicants data
     df_applicants = prepare_applicants_data(applicants_file_path, applicants_columns_to_combine, applicants_columns_to_keep)

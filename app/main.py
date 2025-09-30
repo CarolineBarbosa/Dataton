@@ -20,7 +20,7 @@ from src.embedding_manager import EmbeddingManager  # Assuming EmbeddingManager 
 with open(os.path.join( "src", "config", "index_config.yaml")) as f:
     index_cfg = yaml.safe_load(f)
 indexer = FAISSIndexer( index_cfg)
-emb_mgr = EmbeddingManager('models_config.yaml')
+emb_mgr = EmbeddingManager('src/models_config.yaml')
 bot = RecruiterBot(emb_mgr, indexer)
 
 app = FastAPI()

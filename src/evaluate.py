@@ -86,7 +86,7 @@ def initialize_recruiter_bot():
     """Initialize the RecruiterBot."""
     with open(os.path.join("src", "config", "index_config.yaml")) as f:
         index_cfg = yaml.safe_load(f)
-    emb_mgr = EmbeddingManager(config_path=os.path.join("models_config.yaml"))
+    emb_mgr = EmbeddingManager(config_path=os.path.join("src/models_config.yaml"))
     indexer = FAISSIndexer(index_cfg)
     bot = RecruiterBot(emb_mgr, indexer)
     return bot, emb_mgr, indexer

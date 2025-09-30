@@ -4,7 +4,7 @@ from src.embedding_manager import EmbeddingManager
 
 @pytest.fixture
 def embedding_manager():
-    return EmbeddingManager(config_path="models_config.yaml")
+    return EmbeddingManager(config_path="src/models_config.yaml")
 
 def test_generate_embedding_single_text(embedding_manager):
     text = "This is a test sentence."

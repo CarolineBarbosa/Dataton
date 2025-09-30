@@ -1,4 +1,4 @@
-from utils import load_parquet
+from src.utils import load_parquet
 import numpy as np
 import pandas as pd
 

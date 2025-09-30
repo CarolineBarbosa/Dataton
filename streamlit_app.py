@@ -30,7 +30,7 @@ import requests
 
 # Config paths
 INDEX_CFG_PATH = os.path.join("src", "config", "index_config.yaml")
-MODELS_CFG_PATH = os.path.join("models_config.yaml")
+MODELS_CFG_PATH = os.path.join("src", "models_config.yaml")
 APPLICANTS_PATH = os.path.join("data", "processed", "applicants.parquet")
 
 # Streamlit setup

@@ -1,4 +1,4 @@
-from utils import * 
+from src.utils import * 
 # from utils.datasource_config import DatasourceConfig
 # from src.preprocessing import preprocessing
 from src.feature_engineering import process_entity, extract_filters_from_text, prepare_vagas_applicants_data

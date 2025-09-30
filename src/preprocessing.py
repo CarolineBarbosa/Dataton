@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import load_json, save_to_parquet
+from src.utils import load_json, save_to_parquet
 
 def ingest_data(file_config) -> None:
     """

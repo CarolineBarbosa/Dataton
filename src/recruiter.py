@@ -85,7 +85,7 @@ class RecruiterBot:
     encodes queries, retrieves candidates from FAISS and returns a textual response.
 
     Usage:
-      emb_mgr = EmbeddingManager(config_path="models_config.yaml")
+      emb_mgr = EmbeddingManager(config_path="src/models_config.yaml")
       indexer = FAISSIndexer(index_config)
       bot = RecruiterBot(applicants_df, emb_mgr, indexer)
       reply = bot.chat("Looking for a senior engineer in São Paulo with advanced English")
@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     with open(os.path.join(workspace_root, "src", "config", "index_config.yaml")) as f:
         index_cfg = yaml.safe_load(f)
-    emb_mgr = EmbeddingManager(config_path=os.path.join(workspace_root, "models_config.yaml"))
+    emb_mgr = EmbeddingManager(config_path=os.path.join(workspace_root, "src/models_config.yaml"))
     indexer = FAISSIndexer(index_cfg)
     # load your applicants_df here (parquet/csv)
     bot = RecruiterBot( emb_mgr, indexer)
