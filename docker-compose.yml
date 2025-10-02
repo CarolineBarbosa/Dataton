@@ -2,47 +2,69 @@ version: "3.8"
 services:
   ml_app:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    container_name: ml_app
+    container_name: job_matching_api
     ports:
       - "8000:8000"
-    networks:
-      - app
+    environment:
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  streamlit_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: job_matching_streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      ml_app:
+        condition: service_healthy
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     ports:
       - "9090:9090"
     depends_on:
-      - ml_app
+      ml_app:
+        condition: service_healthy
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     ports:
       - "3000:3000"
     depends_on:
       - prometheus
+    restart: unless-stopped
 
-  streamlit_app:
-    build:
-      context: .
-      dockerfile: Dockerfile_webapp
-    container_name: streamlit_app
-    environment:
-      RECRUITER_API_URL: "http://ml_app:8000/predict"
-    ports:
-      - "8501:8501"
-    depends_on:
-      - ml_app
-    networks:
-      - app
-
-networks:
-  app:
-    driver: bridge
+volumes:
+  prometheus_data:
+  grafana_data:
