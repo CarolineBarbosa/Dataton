@@ -1,0 +1,16 @@
+# Ignorar durante build do Docker
+.venv/
+.git/
+.gitignore
+*.md
+*.bat
+*.sh
+.pytest_cache/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+Thumbs.db
+logs/
+.vscode/
+.idea/
